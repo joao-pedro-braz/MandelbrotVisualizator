@@ -3,25 +3,42 @@ void startThreads() { //<>//
   final int pixelsPerThread = width * height / threadsLength;
 
   for (int thread = 0; thread < threadsLength; thread++) {
+    if (app.threads[thread] != null) {
+      app.threads[thread].interrupt();
+    }
+
     final int threadIndex = thread;
     final int start = threadIndex * pixelsPerThread;
     final int end = (threadIndex + 1) * pixelsPerThread;
 
-    new Thread(() -> {
-      while (true) {
-        if (app.isFrameRequested && !app.threadsAckowledged[threadIndex]) {
-          app.threadsDone[threadIndex] = false;
-          app.threadsAckowledged[threadIndex] = true;
+    app.threads[thread] = new Thread() {
+      private boolean isInterrupted = false;
 
-          drawMandelbrot(start, end);
+      @Override
+        public void run() {
+        while (!isInterrupted) {
+          if (app.isFrameRequested && !app.threadsAckowledged[threadIndex]) {
+            app.threadsDone[threadIndex] = false;
+            app.threadsAckowledged[threadIndex] = true;
 
-          app.threadsDone[threadIndex] = true;
-        } else {
-          delay(1);
+            drawMandelbrot(start, end);
+
+            app.threadsDone[threadIndex] = true;
+          } else {
+            delay(1);
+          }
         }
       }
-    }
-    ).start();
+
+
+      @Override
+        public void interrupt() {
+        super.interrupt();
+        isInterrupted = true;
+      }
+    };
+
+    app.threads[thread].start();
   }
 }
 

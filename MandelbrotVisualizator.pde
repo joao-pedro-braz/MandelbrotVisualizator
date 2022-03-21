@@ -4,27 +4,55 @@ final App app = new App(
   256,
   1000);
 
+PShader shader;
+PImage img;
+
+int oldWidth = 0, oldHeight = 0;
+
 void setup() {
-  size(640, 360);
+  size(640, 360, P2D);
+  surface.setTitle("Hello World!");
+  surface.setResizable(true);
+
   startThreads();
+  shader = loadShader("mandelbrot.frag");
+  img = createImage(width, height, RGB);
 }
 
 void draw() {
-  loadPixels();
-  prepareThreadsForWork();
-  app.isFrameRequested = true;
-
-  while (!allThreadsDone()) {
-    // no-op
-    delay(1);
+  if (oldWidth != width || oldHeight != height) {
+    surfaceResized();
   }
 
-  app.isFrameRequested = false;
-  updatePixels();
+  if (app.shaderMode) {
+    shader.set("worldAnchorPoint", (float) app.worldAnchorPoint[0], (float) app.worldAnchorPoint[1]);
+    shader.set("unitToPixelRatio", app.unitToPixelRatio);
+    shader.set("maxIterations", app.maxIterations);
+    shader.set("cardioidCheck", app.cardioidCheck);
 
-  if ((frameRate % 20) == 0) {
+    shader(shader);
+    image(img, 0, 0);
+  } else {
+    loadPixels();
+    prepareThreadsForWork();
+    app.isFrameRequested = true;
+
+    while (!allThreadsDone()) {
+      // no-op
+      delay(1);
+    }
+
+    app.isFrameRequested = false;
+    updatePixels();
+  }
+
+  if (app.index % 20 == 0) {
     System.out.println(frameRate);
   }
+
+  app.index++;
+  oldWidth = width;
+  oldHeight = height;
 }
 
 void mouseDragged() {
@@ -52,5 +80,14 @@ void keyPressed() {
     app.maxIterations *= 10;
     System.out.println(String.format("Max Iterations: %d", app.maxIterations));
     break;
+  case 't':
+    app.shaderMode = !app.shaderMode;
+    System.out.println(String.format("Shader Mode: %b", app.shaderMode));
+    break;
   }
+}
+
+void surfaceResized() {
+  startThreads();
+  img.resize(width, height);
 }

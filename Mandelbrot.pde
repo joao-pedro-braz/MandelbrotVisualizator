@@ -7,7 +7,7 @@ public void drawMandelbrot(int start, int end) { //<>//
     double[] worldCameraPoint = toWorldCamera(worldPoint);
     int iterationCount = iteratePointMandel(worldCameraPoint);
 
-    pixels[index] = chooseColor(iterationCount, 0);
+    pixels[index] = chooseColor(iterationCount);
   }
 }
 
@@ -61,7 +61,10 @@ private int iteratePointMandel(double[] worldCameraPoint) {
 }
 
 
-private int chooseColor(int iterationCount, double animationStep) {
-  final int adjustedCount = (int) ((iterationCount + animationStep) % app.maxIterations);
-  return color((adjustedCount % 16), (adjustedCount % 170), adjustedCount % 85);
+private int chooseColor(int iterationCount) {
+  final int adjustedCount = (int) (iterationCount + app.index * app.animationSpeed) % app.maxIterations;
+  return color(
+    int((adjustedCount % 16) / 16.0 * 255),
+    int((adjustedCount % 170) / 170.0 * 255),
+    int(adjustedCount % 85) / 85.0 * 255);
 }
