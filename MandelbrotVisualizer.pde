@@ -28,13 +28,13 @@ void draw() {
     final float mantissaY = (float) Math.floor(app.worldAnchorPoint[1]);
     shader.set("worldAnchorPointX", mantissaX, (float) (app.worldAnchorPoint[0] - mantissaX));
     shader.set("worldAnchorPointY", mantissaY, (float) (app.worldAnchorPoint[1] - mantissaY));
-    shader.set("precisionMode", true);
   case Hardware:
     shader.set("worldAnchorPoint", (float) app.worldAnchorPoint[0], (float) app.worldAnchorPoint[1]);
+    
     shader.set("unitToPixelRatio", app.unitToPixelRatio);
     shader.set("maxIterations", app.maxIterations);
     shader.set("cardioidCheck", app.cardioidCheck);
-    shader.set("precisionMode", false);
+    shader.set("precisionMode", app.renderMode == RenderMode.PrecisionHardware);
 
     shader(shader);
     image(img, 0, 0);
