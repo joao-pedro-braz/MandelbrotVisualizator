@@ -1,4 +1,4 @@
-public void drawMandelbrot(int start, int end) { //<>//
+public void drawFrame(int start, int end) { //<>//
   for (int index = start; index < end; index++) {
     final int x = index % width;
     final int y = index / width;
@@ -29,8 +29,8 @@ public void zoomCamera(double deltaUnitToPixelRatio) {
 private int iteratePointMandel(double[] worldCameraPoint) {
   double x, y;
 
+  // https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Cardioid_/_bulb_checking
   if (app.cardioidCheck) {
-    // https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Cardioid_/_bulb_checking
     x = worldCameraPoint[0];
     y = worldCameraPoint[1];
 

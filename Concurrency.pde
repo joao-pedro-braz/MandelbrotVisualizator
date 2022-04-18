@@ -1,59 +1,39 @@
 void startThreads() { //<>//
-  final int threadsLength = app.threadsDone.length;
+  final int threadsLength = app.threads.length;
   final int pixelsPerThread = width * height / threadsLength;
+  final int leftoverPixels = (width * height) - (pixelsPerThread * threadsLength);
 
-  for (int thread = 0; thread < threadsLength; thread++) {
-    if (app.threads[thread] != null) {
-      app.threads[thread].interrupt();
+  int threadIndex = 0;
+  for (MandelbrotThread thread : app.threads) {
+    if (thread != null) {
+      thread.interrupt();
     }
 
-    final int threadIndex = thread;
     final int start = threadIndex * pixelsPerThread;
-    final int end = (threadIndex + 1) * pixelsPerThread;
+    final int end = (threadIndex + 1) * pixelsPerThread +
+      (threadIndex + 1 == threadsLength ? leftoverPixels : 0);
 
-    app.threads[thread] = new Thread() {
-      private boolean isInterrupted = false;
+    thread = new MandelbrotThread(start, end);
 
-      @Override
-        public void run() {
-        while (!isInterrupted) {
-          if (app.isFrameRequested && !app.threadsAckowledged[threadIndex]) {
-            app.threadsDone[threadIndex] = false;
-            app.threadsAckowledged[threadIndex] = true;
+    thread.start();
 
-            drawMandelbrot(start, end);
-
-            app.threadsDone[threadIndex] = true;
-          } else {
-            delay(1);
-          }
-        }
-      }
-
-
-      @Override
-        public void interrupt() {
-        super.interrupt();
-        isInterrupted = true;
-      }
-    };
-
-    app.threads[thread].start();
+    app.threads[threadIndex] = thread;
+    threadIndex++;
   }
 }
 
 void prepareThreadsForWork() {
-  for (int thread = 0; thread < app.threadsAckowledged.length; thread++) {
-    app.threadsAckowledged[thread] = false;
-    app.threadsDone[thread] = false;
+  for (MandelbrotThread thread : app.threads) {
+    thread.isAckowledged = false;
+    thread.isDone = false;
   }
 }
 
 boolean allThreadsDone() {
   boolean allDone = true;
 
-  for (boolean done : app.threadsDone) {
-    if (!done) {
+  for (MandelbrotThread thread : app.threads) {
+    if (!thread.isDone) {
       allDone = false;
       break;
     }

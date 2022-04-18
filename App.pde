@@ -1,3 +1,24 @@
+public enum RenderMode {
+  Software,
+    Hardware,
+    PrecisionHardware;
+
+  static RenderMode next(RenderMode mode) {
+    boolean found = false;
+    for (RenderMode currentMode : RenderMode.values()) {
+      if (found) {
+        return currentMode;
+      }
+
+      if (currentMode == mode) {
+        found = true;
+      }
+    }
+
+    return RenderMode.values()[0];
+  }
+}
+
 class App {
 
   public long unitToPixelRatio;
@@ -8,19 +29,15 @@ class App {
 
   public boolean cardioidCheck = true;
 
-  public final boolean[] threadsDone;
-
-  public final boolean[] threadsAckowledged;
-
-  public final Thread[] threads;
-
-  public final ArrayList<Runnable> actions = new ArrayList<>();
+  public final MandelbrotThread[] threads;
 
   public final float animationSpeed = 0;
 
+  public final PVector size = new PVector();
+
   public boolean isFrameRequested = false;
 
-  public boolean shaderMode = true;
+  public RenderMode renderMode = RenderMode.Software;
 
   public int index = 0;
 
@@ -29,8 +46,6 @@ class App {
     this.worldAnchorPoint = worldAnchorPoint;
     this.maxIterations = maxIterations;
 
-    this.threadsDone = new boolean[nrThreads];
-    this.threadsAckowledged = new boolean[nrThreads];
-    this.threads = new Thread[nrThreads];
+    this.threads = new MandelbrotThread[nrThreads];
   }
 }
